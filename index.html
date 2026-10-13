@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Video</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;          /* no scrollbars */
+      background: transparent;
+    }
+    video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;    
+      background: transparent;   /* prevent browser from filling black behind the video */
+      pointer-events: none;      /* no clicks, no right-click menu, no hover UI */
+    }
+  </style>
+</head>
+<body>
+  <!--
+    autoplay + muted + playsinline allows video to autoplay.
+  -->
+  <video
+    src="HP-video.mp4"
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="auto"
+    disablepictureinpicture
+    disableremoteplayback
+    aria-hidden="true">
+  </video>
+
+  <script>
+    (function () {
+      var v = document.querySelector('video');
+      var inView = true;
+
+      // Some browsers only honor the muted *property* for autoplay
+      v.muted = true;
+
+      function play() {
+        if (!inView || document.hidden) return;
+        var p = v.play();
+        if (p && p.catch) p.catch(function () {});
+      }
+
+      // Pause while scrolled out of view
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) {
+          inView = entries[0].isIntersecting;
+          if (inView) { play(); } else { v.pause(); }
+        }).observe(v);
+      }
+
+      // Resume after switching tabs or apps
+      document.addEventListener('visibilitychange', play);
+
+      play();
+    })();
+  </script>
+</body>
+</html>
